@@ -1,7 +1,12 @@
+using SignalRChatApp.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Add SignalR service to the container which is required for using SignalR to create hubs
+builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -23,5 +28,6 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+    // Map the ChatHub to the "/chathub" endpoint
+app.MapHub<ChatHub>("/chathub");
 app.Run();
