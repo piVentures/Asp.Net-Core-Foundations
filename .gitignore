@@ -52,3 +52,141 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# === Build Folders ===
+bin/
+obj/
+out/
+Debug/
+Release/
+
+# === User-specific files ===
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.resharper
+*.DotSettings.user
+*.sln.docstates
+
+# === Rider IDE files ===
+.idea/
+*.sln.iml
+*.iws
+*.ipr
+
+# === Visual Studio Code ===
+.vscode/
+.history/
+
+# === Visual Studio Files ===
+.vs/
+*.vssscc
+*.vsscc
+*.scc
+*.cache
+*.dbmdl
+*.bak
+*.log
+
+# === NuGet ===
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# === ASP.NET Core specific ===
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.json
+wwwroot/lib/
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# === Rider / ReSharper / JetBrains ===
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings
+.idea/
+
+# === Entity Framework Core Migrations ===
+Migrations/
+
+# === Publish outputs ===
+*.publishsettings
+publish/
+*.deploy.cmd
+*.zip
+*.7z
+*.tar.gz
+*.tar
+*.tar.bz2
+*.tar.xz
+
+# === Dotnet global tools cache ===
+.dotnet/
+.nuget/
+*.dotnet-tools.json
+
+# === Rider / VS Mac / MonoDevelop ===
+*.pidb
+*.userprefs
+
+# === Test Results ===
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+*.testsettings
+
+# === Logs & temporary files ===
+*.log
+*.tlog
+*.tmp
+*.temp
+*.cache
+*.pdb
+*.mdb
+*.opendb
+
+# === OS Specific ===
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+# Linux
+*~
+.nfs*
+
+# === Unity specific (if using Unity + .NET) ===
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+MemoryCaptures/
+*.csproj.user
+*.pidb
+*.unityproj
+*.booproj
+*.svd
+*.pdb
+*.mdb
+
+# === Rider project files ===
+.idea/
+*.sln.iml
+
+# === Others ===
+*.vsix
+*.cachefile
