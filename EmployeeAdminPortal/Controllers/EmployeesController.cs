@@ -89,7 +89,7 @@ namespace EmployeeAdminPortal.Controllers
 
             }
             dbContext.Employees.Remove(employee);
-            dbContext.Save();
+            dbContext.SaveChanges();
 
             return Ok();
         }
@@ -98,3 +98,45 @@ namespace EmployeeAdminPortal.Controllers
 
     }
 }
+
+
+
+/*
+EmployeesController - Conceptual Overview and Logic Analysis
+
+This controller demonstrates key ASP.NET Core and Entity Framework Core concepts for building a RESTful API:
+
+1. Dependency Injection & DbContext:
+   - The controller relies on constructor injection to receive an ApplicationDbContext instance.
+   - This allows seamless database access without manually instantiating the context, promoting testability and decoupling.
+   - DbContext represents a session with the database and tracks entity states (Added, Modified, Deleted).
+
+2. Entity Framework Core (EF Core) Integration:
+   - The controller works directly with EF Core entities (Employee) to perform CRUD operations.
+   - EF Core handles object-relational mapping (ORM) and translates LINQ queries into SQL for SQLite.
+   - DbSet<TEntity> represents a collection of entities in the database and provides methods like Add(), Find(), Remove(), and LINQ queries like ToList().
+
+3. DTO Usage:
+   - AddEmployeeDto and UpdateEmployeeDto separate the API contract from the database schema.
+   - DTOs prevent over-posting attacks by exposing only required fields and avoiding direct entity binding.
+   - Mapping DTOs to entities ensures data integrity and aligns with domain-driven design principles.
+
+4. IActionResult & HTTP Abstractions:
+   - Endpoints return IActionResult, allowing flexible responses like Ok(), NotFound(), or BadRequest().
+   - This abstraction decouples the logic from specific HTTP responses while keeping the API RESTful.
+
+5. RESTful Routing & Attribute Routing:
+   - Attribute routing (e.g., [Route("api/[controller]")]) defines clean and intuitive REST endpoints.
+   - Route parameters (e.g., {id:guid}) enable model binding, which automatically converts HTTP request data into C# types.
+
+6. Change Tracking & Persistence:
+   - EF Core tracks entity states; adding or modifying entities updates their state.
+   - Calling SaveChanges() commits all tracked changes to the database in a single transaction.
+   - This abstracts away manual SQL, ensuring consistency and atomicity.
+
+7. Overall Logic:
+   - The controller acts as a mediator between HTTP requests and the database.
+   - It leverages dependency injection, EF Core, and DTOs to enforce separation of concerns, maintainable code, and safe data handling.
+   - It exemplifies the modern ASP.NET Core approach to building scalable, testable APIs with ORM support.
+
+*/
