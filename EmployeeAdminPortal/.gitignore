@@ -1,0 +1,15 @@
+# === Database / SQLite ===
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Optional local database folders
+Database/
+Data/*.db
+
+# === Entity Framework Core ===
+# Migrations should normally be committed
+# Uncomment only for experiments
+# Migrations/
