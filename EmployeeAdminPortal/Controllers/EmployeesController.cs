@@ -24,7 +24,20 @@ namespace EmployeeAdminPortal.Controllers
             return Ok(allEmployees); // Return 200 OK with data
         }
 
-        
+        [HttpGet]
+        [Route("{id:guid}")]
+         public IActionResult GetEmployeeById(Guid id)
+        {
+            var employee = dbContext.Employees.Find(id);
+
+            if(employee is null)
+            {
+                return NotFound();
+
+            }
+            return Ok(employee);
+        }
+
         
         [HttpPost] // POST api/employees
         public IActionResult AddEmployee(AddEmployeeDto addEmployeeDto)
@@ -43,6 +56,45 @@ namespace EmployeeAdminPortal.Controllers
 
             return Ok(employeeEntity); // Return 200 OK with the newly added employee
         }
+
+
+
+        [HttpPut]
+        public IActionResult UpdateEmployee(Guid id, UpdateEmployeeDto updateEmployeeDto )
+        {
+            var employee = dbContext.Employees.Find(id);
+
+            if(employee is null)
+            {
+                return NotFound();
+            }
+            employee.Name = updateEmployeeDto.Name;
+            employee.Email = updateEmployeeDto.Email;
+            employee.Phone = updateEmployeeDto.Phone;
+            employee.Salary = updateEmployeeDto.Salary;
+
+            dbContext.SaveChanges();
+            return Ok(employee);
+        }
+
+        [HttpDelete]
+        [Route("{id:guid}")]
+         public IActionResult DeleteEmployeeById(Guid id)
+        {
+            var employee = dbContext.Employees.Find(id);
+
+            if(employee is null)
+            {
+                return NotFound();
+
+            }
+            dbContext.Employees.Remove(employee);
+            dbContext.Save();
+
+            return Ok();
+        }
+
+        
 
     }
 }
