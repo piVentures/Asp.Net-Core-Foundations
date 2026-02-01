@@ -190,3 +190,4 @@ MemoryCaptures/
 # === Others ===
 *.vsix
 *.cachefile
+*.sln
