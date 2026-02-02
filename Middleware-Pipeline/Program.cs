@@ -1,7 +1,11 @@
-using System.Reflection.Metadata.Ecma335;
+using WebApp.MiddlewareComponents;
 
 var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+
+// // Registers CustomMiddleware for dependency injection
+builder.Services.AddTransient<CustomMiddleware>();
+
+var app = builder.Build(); 
 
 #region Middleware - 1
 // First middleware in the pipeline
@@ -39,6 +43,9 @@ app.UseWhen(context =>
     });
 });
 #endregion
+
+// Runs custom middleware in the pipeline
+app.UseMiddleware<CustomMiddleware>();
 
 #region Middleware - 2
 // Second middleware in the main pipeline
