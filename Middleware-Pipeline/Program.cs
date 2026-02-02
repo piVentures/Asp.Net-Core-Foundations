@@ -73,7 +73,58 @@ app.Use(async (HttpContext context, RequestDelegate next) =>
 });
 #endregion
 
-#region Terminal Middleware
-// Terminal middleware that ends the pipeline
-app.Run();
+
+#region HttpContext
+app.Use(async (HttpContext context, RequestDelegate next) =>
+{
+    // --- Request Information ---
+    var method = context.Request.Method;                   // GET, POST, etc.
+    var scheme = context.Request.Scheme;                   // http / https
+    var host = context.Request.Host;                       // localhost:5000
+    var path = context.Request.Path;                       // /employees
+    var queryString = context.Request.QueryString;         // ?id=42
+    var queryId = context.Request.Query["id"];             // 42
+    var protocol = context.Request.Protocol;               // HTTP/1.1
+    var userAgent = context.Request.Headers["User-Agent"]; // client info
+    var contentType = context.Request.ContentType;         // e.g., application/json
+
+    await context.Response.WriteAsync(
+        $"--- Request Info ---\r\n" +
+        $"Method: {method}\r\n" +
+        $"Scheme: {scheme}\r\n" +
+        $"Host: {host}\r\n" +
+        $"Path: {path}\r\n" +
+        $"Query: {queryString}\r\n" +
+        $"Protocol: {protocol}\r\n" +
+        $"User-Agent: {userAgent}\r\n" +
+        $"Content-Type: {contentType}\r\n\r\n"
+    );
+
+    // --- Call Next Middleware ---
+    await next(context);
+
+    // --- Response Information (after next) ---
+    var statusCode = context.Response.StatusCode;          // e.g., 200
+    var responseContentType = context.Response.ContentType; // e.g., text/plain
+    var responseHeaders = context.Response.Headers;       // all headers
+
+    await context.Response.WriteAsync(
+        $"--- Response Info ---\r\n" +
+        $"Status Code: {statusCode}\r\n" +
+        $"Content-Type: {responseContentType}\r\n" +
+        $"Headers: {string.Join(", ", responseHeaders.Select(h => $"{h.Key}={h.Value}"))}\r\n" +
+        $"Processed by middleware after next\r\n"
+    );
+});
 #endregion
+
+
+#region Terminal middleware
+app.Run(async context =>
+{
+    await context.Response.WriteAsync("This is terminal middleware (app.Run)\r\n");
+});
+#endregion
+
+app.Run(); 
+
