@@ -4,8 +4,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // // Registers CustomMiddleware for dependency injection
 builder.Services.AddTransient<CustomMiddleware>();
+builder.Services.AddTransient<CustomExceptionHandler>();
 
 var app = builder.Build(); 
+
+app.UseMiddleware<CustomExceptionHandler>();
 
 #region Middleware - 1
 // First middleware in the pipeline
@@ -61,6 +64,9 @@ app.Use(async (HttpContext context, RequestDelegate next) =>
 // Third middleware in the main pipeline
 app.Use(async (HttpContext context, RequestDelegate next) =>
 {
+    
+    // throw new ApplicationException("Exception just for testing the CustomException Handler");
+
     await context.Response.WriteAsync("Middleware #3: Before calling next \r\n");
     await next(context);
     await context.Response.WriteAsync("Middleware #3: After calling next \r\n");
