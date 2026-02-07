@@ -1,97 +1,76 @@
 var builder = WebApplication.CreateBuilder(args);
 
-/*
- * Register routing services and custom route constraints
- * NOTE: Must be done BEFORE building the app
- */
+// Register custom route constraint
 builder.Services.AddRouting(options =>
 {
     options.ConstraintMap.Add("pos", typeof(PositionConstraint));
 });
 
-/*
- * Build the application
- * After this point, services are READ-ONLY
- */
 var app = builder.Build();
-
-/*
- * Enable routing middleware
- * Matches incoming requests to defined endpoints
- */
 app.UseRouting();
 
-/*
- * Define endpoints explicitly
- * (Older style, great for learning routing concepts)
- */
 app.UseEndpoints(endpoints =>
 {
-    // Home page
+    // Home page with test links
     endpoints.MapGet("/", async context =>
-
-    {   context.Response.ContentType="text/html";
-        await context.Response.WriteAsync("welcome to home page");
+    {   
+        context.Response.ContentType = "text/html";
+        await context.Response.WriteAsync("Welcome to home page<br/>Test custom constraint:<br/>");
+        await context.Response.WriteAsync("/employees/positions/manager (should work)<br/>");
+        await context.Response.WriteAsync("/employees/positions/developer (should work)<br/>");
+        await context.Response.WriteAsync("/employees/positions/designer (should fail - 404)");
     });
 
-    // GET /employees
-    endpoints.MapGet("/employees", async context =>
-    {
-        await context.Response.WriteAsync("get an employee");
-    });
+    // CRUD endpoints for employees
+    endpoints.MapGet("/employees", async context => await context.Response.WriteAsync("get all employees"));
+    endpoints.MapPost("/employees", async context => await context.Response.WriteAsync("create an employee"));
+    endpoints.MapPut("/employees", async context => await context.Response.WriteAsync("update an employee"));
+    endpoints.MapDelete("/employees", async context => await context.Response.WriteAsync("delete an employee"));
 
-    // POST /employees
-    endpoints.MapPost("/employees", async context =>
-    {
-        await context.Response.WriteAsync("create an employee");
-    });
-
-    // PUT /employees
-    endpoints.MapPut("/employees", async context =>
-    {
-        await context.Response.WriteAsync("update an employee");
-    });
-
-    // DELETE /employees
-    endpoints.MapDelete("/employees", async context =>
-    {
-        await context.Response.WriteAsync("delete an employee");
-    });
-
-    /*
-     * GET /employees/positions/{position}
-     * Uses custom :pos route constraint
-     * Allowed values: manager, developer
-     */
+    // Constrained route - Only allows manager/developer
     endpoints.MapGet("/employees/positions/{position:pos}", async context =>
     {
         var position = context.Request.RouteValues["position"];
         await context.Response.WriteAsync($"Get employees under position: {position}");
     });
 
-    /*
-     * Route with default and optional parameters
-     * {category=shirts} → default value
-     * {size?}           → optional
-     * {id?}             → optional
-     */
+    // Catch invalid positions (404) - Must come AFTER constrained route
+    endpoints.MapGet("/employees/positions/{position}", async context =>
+    {
+        context.Response.StatusCode = 404;
+        var position = context.Request.RouteValues["position"];
+        await context.Response.WriteAsync($"Invalid position: '{position}'. Allowed: 'manager' or 'developer'");
+    });
+
+    // Route with default/optional parameters
     endpoints.MapGet("/{category=shirts}/{size?}/{id?}", async context =>
     {
         await context.Response.WriteAsync(
-            $"The category: {context.Request.RouteValues["category"]}, " +
-            $"size: {context.Request.RouteValues["size"]}, " +
-            $"id: {context.Request.RouteValues["id"]}"
+            $"Category: {context.Request.RouteValues["category"]}, " +
+            $"Size: {context.Request.RouteValues["size"]}, " +
+            $"ID: {context.Request.RouteValues["id"]}"
         );
+    });
+
+    // Global 404 catch-all
+    endpoints.MapGet("/{*path}", async context =>
+    {
+        context.Response.StatusCode = 404;
+        await context.Response.WriteAsync($"Route not found");
     });
 });
 
 app.Run();
 
-/*
- * Custom route constraint for validating employee positions
- */
+// Custom constraint class - validates position parameter
 class PositionConstraint : IRouteConstraint
 {
+    private static readonly HashSet<string> _validPositions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "manager",
+        "developer"
+    };
+
     public bool Match(
         HttpContext? httpContext,
         IRouter? route,
@@ -99,14 +78,13 @@ class PositionConstraint : IRouteConstraint
         RouteValueDictionary values,
         RouteDirection routeDirection)
     {
-        // Validate route parameter existence
+        // Check if parameter exists
         if (!values.ContainsKey(routeKey) || values[routeKey] is null)
             return false;
 
         var position = values[routeKey]!.ToString();
-
-        // Allow only predefined values
-        return position.Equals("manager", StringComparison.OrdinalIgnoreCase) ||
-               position.Equals("developer", StringComparison.OrdinalIgnoreCase);
+        
+        // Validate against allowed values
+        return _validPositions.Contains(position);
     }
 }
