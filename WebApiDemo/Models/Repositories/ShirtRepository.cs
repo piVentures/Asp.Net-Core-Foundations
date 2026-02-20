@@ -13,6 +13,10 @@ namespace WebApiDemo.Models.Repositories
             new Shirt{ShirtId = 4, Brand = "z's Brand", Color = "White", Gender = "Women", Price = 32, Size = 10}
         };
 
+        public static List<Shirt> GetShirts()
+        {
+            return shirts;
+        }
         public static bool ShirtExists(int id)
         {
             return shirts.Any(x => x.ShirtId ==id);
@@ -21,6 +25,21 @@ namespace WebApiDemo.Models.Repositories
         public static Shirt? GetShirtById(int id)
         {
             return shirts.FirstOrDefault(x => x.ShirtId ==id);
+        }
+
+// This method checks if a shirt with the same properties already exists in the repository. It compares the brand, color, gender, and size of the shirt being created with the existing shirts in the repository. If a shirt with the same properties is found, it returns that shirt; otherwise, it returns null.
+        public static Shirt? GetShirtByProperties(string? brand, string? color, string? gender, int? size)
+        {
+            return shirts.FirstOrDefault(x => !string.IsNullOrEmpty(brand) && !string.IsNullOrWhiteSpace(x.Brand) && x.Brand.Equals(brand, StringComparison.OrdinalIgnoreCase)
+            || !string.IsNullOrEmpty(color) && !string.IsNullOrWhiteSpace(x.Color) && x.Color.Equals(color, StringComparison.OrdinalIgnoreCase) && size.HasValue && x.Size.HasValue && x.Size.Value == size.Value);
+          
+           
+        }
+                public static void Addshirt(Shirt shirt)
+        {
+            int maxId = shirts.Max(x => x.ShirtId);
+            shirt.ShirtId = maxId + 1;
+            shirts.Add(shirt);
         }
     }
 } 

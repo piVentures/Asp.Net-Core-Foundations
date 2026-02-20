@@ -25,7 +25,20 @@ namespace WebApiDemo.Controllers
     [HttpPost]
      public IActionResult CreateShirt([FromBody]Shirt shirt)
         {
-            return Ok($"Creating a shirt");
+            if (shirt == null)
+            {
+                return BadRequest("Shirt data is null.");
+            }
+            var existingShirt = ShirtRepository.GetShirtByProperties(shirt.Brand, shirt.Gender, shirt.Color,shirt.Size);
+            if (existingShirt != null)
+            {
+                return Conflict("A shirt with the same properties already exists.");
+            }
+            ShirtRepository.Addshirt(shirt);
+
+            // Return a 201 Created response with the location of the newly created shirt 
+            return CreatedAtAction(nameof(GetShirtById), new { id = shirt.ShirtId }, shirt);
+           
         }
 
         [HttpPut("{id}")]
