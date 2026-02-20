@@ -4,6 +4,7 @@ using WebApiDemo.Models;
 using WebApiDemo.Filters;
 namespace WebApiDemo.Controllers
 {
+    // Routing → Filters → Binding → Validation → Action 
     [ApiController]
     [Route("api/[controller]")]
     public class ShirtsController: ControllerBase {
@@ -23,6 +24,7 @@ namespace WebApiDemo.Controllers
         }
 
     [HttpPost]
+    [Shirt_ValidateCreateShirtFilter]
      public IActionResult CreateShirt([FromBody]Shirt shirt)
         {
             if (shirt == null)
@@ -41,10 +43,27 @@ namespace WebApiDemo.Controllers
            
         }
 
+    //   This method is responsible for updating an existing shirt. It takes the shirt ID from the URL and the updated shirt data from the request body. It first checks if the ID in the URL matches the ID of the shirt being updated. If they don't match, it returns a Bad Request response. If they match, it attempts to update the shirt in the repository. If the shirt with the specified ID doesn't exist, it returns a Not Found response. If the update is successful, it returns a No Content response indicating that the update was successful but there's no content to return.
+
         [HttpPut("{id}")]
-        public IActionResult UpdateShirt(int id)
+        [Shirt_validateShirtIdFilter]
+        [Shirt_ValidateUpdateFilter]
+        public IActionResult UpdateShirt(int id, Shirt shirt)
         {
-             return Ok($"updating a shirt");
+
+            try
+            {
+                 ShirtRepository.UpdateShirt(shirt);
+            }
+            catch
+            {
+                if (!ShirtRepository.ShirtExists(id))
+            {
+                return NotFound($"Shirt with ID {id} not found.");
+                throw;
+            }
+            }
+            return NoContent(); 
         }
 
         [HttpDelete("{id}")]
@@ -55,3 +74,4 @@ namespace WebApiDemo.Controllers
     }
 
 }
+
