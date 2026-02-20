@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApiDemo.Models.Repositories;
 using WebApiDemo.Models;
 using WebApiDemo.Filters;
+using WebApiDemo.Filters.ExceptionFilters;
 namespace WebApiDemo.Controllers
 {
     // Routing → Filters → Binding → Validation → Action 
@@ -13,7 +14,8 @@ namespace WebApiDemo.Controllers
         [HttpGet]
         public IActionResult GetShirt()
         {
-            return Ok("reading all the shirts");
+            var shirts = ShirtRepository.GetShirts();
+            return Ok(shirts);
         }  
 
     [HttpGet("{id}")]
@@ -48,28 +50,22 @@ namespace WebApiDemo.Controllers
         [HttpPut("{id}")]
         [Shirt_validateShirtIdFilter]
         [Shirt_ValidateUpdateFilter]
+        [Shirt_HandleUpdateExeptionsFilterAttibute]
         public IActionResult UpdateShirt(int id, Shirt shirt)
         {
+        ShirtRepository.UpdateShirt(shirt);
+           
+        return NoContent(); 
 
-            try
-            {
-                 ShirtRepository.UpdateShirt(shirt);
-            }
-            catch
-            {
-                if (!ShirtRepository.ShirtExists(id))
-            {
-                return NotFound($"Shirt with ID {id} not found.");
-                throw;
-            }
-            }
-            return NoContent(); 
         }
 
         [HttpDelete("{id}")]
+        [Shirt_validateShirtIdFilter]
         public IActionResult DeleteShirt(int id)
         {
-            return Ok($"Deleting a shirt: {id}");
+           var shirt = ShirtRepository.GetShirtById(id);
+           ShirtRepository.DeleteShirt(id);
+           return Ok(shirt);
         }
     }
 
