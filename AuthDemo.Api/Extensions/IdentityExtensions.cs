@@ -7,54 +7,101 @@ using System.Text;
 
 namespace AuthDemo.Api.Extensions
 {
-    public static  class IdentityExtensions{
-        public static IServiceCollection AddIdntityHandlerAndStore(this IServiceCollection services)
-        {
-  services.AddIdentityApiEndpoints<AppUser>()
-    .AddEntityFrameworkStores<AppDbContext>();
-    return services;
-            
-        }
-
-
-        public static IServiceCollection ConfigureIdentityOptions(this IServiceCollection services)
-        {
-services.Configure<IdentityOptions>(options =>
-{
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;  
-    options.Password.RequireUppercase = false;
-    
-    options.User.RequireUniqueEmail = true;
-});
-return services;
-         }
-
-         public static IServiceCollection AddIdentityAuth(this IServiceCollection services, IConfiguration config)
-        {
-            services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = 
-    x.DefaultChallengeScheme = 
-    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(y =>
-{
-    y.SaveToken = false;
-    y.TokenValidationParameters = new TokenValidationParameters
+    // ✅ Extension class used to keep Program.cs clean
+    // Instead of writing long setup code in Program.cs,
+    // we move Identity & Authentication configuration here.
+    public static class IdentityExtensions
     {
-        ValidateIssuerSigningKey = true, 
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["AppSettings:JWTSecret"]!))
-    };
-});
-return services;
-        }
-         
-
-          public static WebApplication AddIdentityAuthMiddlewares(this WebApplication app)
+        // =====================================================
+        // REGISTER IDENTITY + DATABASE STORE
+        // =====================================================
+        public static IServiceCollection AddIdntityHandlerAndStore(
+            this IServiceCollection services)
         {
-           app.UseAuthentication();
+            // Adds ASP.NET Core Identity endpoints
+            // (login, register, manage users, etc.)
+            // and connects Identity to Entity Framework database
+            services.AddIdentityApiEndpoints<AppUser>()
+                    .AddEntityFrameworkStores<AppDbContext>();
 
+            return services;
+        }
+
+
+        // =====================================================
+        // CONFIGURE IDENTITY OPTIONS (PASSWORD + USER RULES)
+        // =====================================================
+        public static IServiceCollection ConfigureIdentityOptions(
+            this IServiceCollection services)
+        {
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password rules customization
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+
+                // Require unique email for each user
+                options.User.RequireUniqueEmail = true;
+            });
+
+            return services;
+        }
+
+
+        // =====================================================
+        // ADD JWT AUTHENTICATION
+        // =====================================================
+        public static IServiceCollection AddIdentityAuth(
+            this IServiceCollection services,
+            IConfiguration config)
+        {
+            // Configure authentication system
+            services.AddAuthentication(options =>
+            {
+                // JWT will be used as default authentication scheme
+                options.DefaultAuthenticateScheme =
+                options.DefaultChallengeScheme =
+                options.DefaultScheme =
+                    JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                // Token is not stored server-side (stateless auth)
+                options.SaveToken = false;
+
+                // JWT validation rules
+                options.TokenValidationParameters =
+                    new TokenValidationParameters
+                    {
+                        // Validate token signature
+                        ValidateIssuerSigningKey = true,
+
+                        // Secret key used to verify JWT signature
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(
+                                Encoding.UTF8.GetBytes(
+                                    config["AppSettings:JWTSecret"]!
+                                ))
+                    };
+            });
+
+            return services;
+        }
+
+
+        // =====================================================
+        // ADD AUTHENTICATION MIDDLEWARES TO PIPELINE
+        // =====================================================
+        public static WebApplication AddIdentityAuthMiddlewares(
+            this WebApplication app)
+        {
+            // Checks incoming request for JWT token
+            app.UseAuthentication();
+
+            // Applies authorization rules ([Authorize])
             app.UseAuthorization();
+
             return app;
         }
     }
