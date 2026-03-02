@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
+using AuthDemo.Api.Models.Entities;
 namespace AuthDemo.Api.Models
 {
     public class AppDbContext : IdentityDbContext
@@ -9,5 +9,6 @@ namespace AuthDemo.Api.Models
         {
             
         }
+        public DbSet<AppUser> AppUsers { get; set; }
     }
 }
