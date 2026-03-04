@@ -1,4 +1,4 @@
-using AuthDemo.Api.Models;
+using Microsoft.OpenApi.Models;
 
 namespace AuthDemo.Api.Extensions
 {
@@ -8,19 +8,48 @@ namespace AuthDemo.Api.Extensions
         // Register Swagger services
         public static IServiceCollection AddSwaggerExplorer(this IServiceCollection services)
         {
-            services.AddEndpointsApiExplorer(); // enables endpoint discovery
-            services.AddSwaggerGen();           // generates OpenAPI/Swagger docs
+            services.AddEndpointsApiExplorer();
+
+            services.AddSwaggerGen(options =>
+            {
+                // 🔐 Add JWT Authentication definition
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter JWT token like this: Bearer {your token}"
+                });
+
+                // 🔐 Make Swagger require JWT for protected endpoints
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+            });
+
             return services;
         }
 
         // Enable Swagger middleware
         public static WebApplication ConfigureSwaggerExplorer(this WebApplication app)
         {
-            // Run Swagger only in development environment
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();    // creates swagger.json
-                app.UseSwaggerUI();  // enables Swagger UI page
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             return app;

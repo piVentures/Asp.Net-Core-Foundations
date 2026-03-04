@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AuthDemo.Api.Extensions
 {
@@ -22,6 +23,7 @@ namespace AuthDemo.Api.Extensions
             // (login, register, manage users, etc.)
             // and connects Identity to Entity Framework database
             services.AddIdentityApiEndpoints<AppUser>()
+                    .AddRoles<IdentityRole>()
                     .AddEntityFrameworkStores<AppDbContext>();
 
             return services;
@@ -82,10 +84,19 @@ namespace AuthDemo.Api.Extensions
                             new SymmetricSecurityKey(
                                 Encoding.UTF8.GetBytes(
                                     config["AppSettings:JWTSecret"]!
-                                ))
+                                )),
+                            //
+                                ValidateIssuer = false,
+                                ValidateAudience = false,
                     };
             });
 
+            
+            services.AddAuthorization(options => 
+            {options.FallbackPolicy = new AuthorizationPolicyBuilder().AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+            .RequireAuthenticatedUser()
+            .Build();
+            });
             return services;
         }
 
