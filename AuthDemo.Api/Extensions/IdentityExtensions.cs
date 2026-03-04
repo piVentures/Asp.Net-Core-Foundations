@@ -96,7 +96,16 @@ namespace AuthDemo.Api.Extensions
             {options.FallbackPolicy = new AuthorizationPolicyBuilder().AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
             .RequireAuthenticatedUser()
             .Build();
+
+// Custom policy that requires "LibraryId" claim to access certain endpoints
+            options.AddPolicy("HasLibraryId", policy => policy.RequireClaim("LibraryId")); 
+
+          options.AddPolicy("FemaleOnly", policy => policy.RequireClaim("Gender", "Female"));    
+
+          options.AddPolicy("Under10", policy => policy.RequireAssertion(context => Int32.Parse(context.User.Claims.First(x => x.Type=="Age").Value)<10));
+
             });
+            
             return services;
         }
 
