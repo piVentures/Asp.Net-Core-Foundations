@@ -6,7 +6,7 @@ namespace FormulaAirline.Api.Services;
 
     public class MessageProducer : IMessageProducer
 {
-    public async Task SendingMessage<T>(T message)
+    public async Task SendMessage<T>(T message)
     {
         var factory = new ConnectionFactory()
         {

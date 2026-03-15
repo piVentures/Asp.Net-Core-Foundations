@@ -5,28 +5,37 @@ using Microsoft.AspNetCore.Mvc;
 namespace FormulaAirline.Api.Controllers
 {
     [ApiController]
-    [Route("controller")]
+    [Route("api/[controller]")]
     public class BookingsController : ControllerBase
     {
         public static readonly List<Booking> _bookings = new();
+
         private readonly ILogger<BookingsController> _logger;
         private readonly IMessageProducer _messageProducer;
 
-
-        public BookingsController(ILogger<BookingsController> logger, IMessageProducer messageProducer)
+        public BookingsController(
+            ILogger<BookingsController> logger,
+            IMessageProducer messageProducer)
         {
             _logger = logger;
             _messageProducer = messageProducer;
         }
 
         [HttpPost]
-        public IActionResult CreateBooking(Booking newBooking)
+        public async Task<IActionResult> CreateBooking([FromBody] Booking newBooking)
         {
-            if(ModelState.IsValid) return BadRequest();
-            
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             _bookings.Add(newBooking);
-            _messageProducer.SendingMessages<Booking>(newBooking);
-            return Ok();
+
+            await _messageProducer.SendMessage(newBooking);
+
+            return Ok(new
+            {
+                message = "Booking sent to queue",
+                booking = newBooking
+            });
         }
     }
 }
