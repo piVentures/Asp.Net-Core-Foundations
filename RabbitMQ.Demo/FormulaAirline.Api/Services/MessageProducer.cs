@@ -20,7 +20,7 @@ namespace FormulaAirline.Api.Services;
 // Create a channel within the connection
         await using var channel =  await conn.CreateChannelAsync();
  
-        await channel.QueueDeclareAsync("bookings", durable: true, exclusive: true);
+        await channel.QueueDeclareAsync("bookings", durable: true, exclusive: false);
 
         var jsonString = JsonSerializer.Serialize(message);
 
