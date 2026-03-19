@@ -39,6 +39,9 @@ namespace FileDemo.Api.Controllers
             return Ok(new {dbPath});
         }
 
+
+
+
         [HttpPost("upload-multiple"), DisableRequestSizeLimit]
         public async Task<IActionResult> UploadMultipleFiles([FromForm] MultipleUploadModel model)
         {
@@ -74,5 +77,24 @@ namespace FileDemo.Api.Controllers
             }
             return Ok(new{ response } );
         }
+
+
+
+        [HttpGet("download/{fileName}")]
+     public async Task<IActionResult> DownloadByName(string fileName)
+{
+    var folderName = Path.Combine("Resources", "AllFiles");
+    var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+    var fullPath = Path.Combine(pathToSave, fileName);
+
+    if (!System.IO.File.Exists(fullPath))
+    {
+        return NotFound("File not found.");
+    }
+
+    var fileBytes = await System.IO.File.ReadAllBytesAsync(fullPath);
+
+    return File(fileBytes, "application/octet-stream", fileName);
+}
     }
 }
