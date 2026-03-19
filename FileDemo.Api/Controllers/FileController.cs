@@ -38,5 +38,41 @@ namespace FileDemo.Api.Controllers
 
             return Ok(new {dbPath});
         }
+
+        [HttpPost("upload-multiple"), DisableRequestSizeLimit]
+        public async Task<IActionResult> UploadMultipleFiles([FromForm] MultipleUploadModel model)
+        {
+            var response = new Dictionary<string, string>();
+            if(model.Files == null || model.Files.Count == 0)
+            {
+                return BadRequest("No files uploaded.");
+            }
+
+            foreach(var file in model.Files)
+            {
+                 var folderName = Path.Combine("Resources", "AllFiles");
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);  
+                }
+                var fileName = file.FileName;
+                var fullPath = Path.Combine(pathToSave, fileName);
+                var dbPath = Path.Combine(folderName, fileName);   
+
+                if (!System.IO.File.Exists(fullPath))
+                {
+                  using var memoryStream = new MemoryStream();  
+                    await file.CopyToAsync(memoryStream);
+                    await System.IO.File.WriteAllBytesAsync(fullPath, memoryStream.ToArray());
+                    response.Add(fileName, dbPath);
+                }
+                else
+                {
+                    response.Add(fileName, "File already exists.")  ;
+                }  
+            }
+            return Ok(new{ response } );
+        }
     }
 }
