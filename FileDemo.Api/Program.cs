@@ -1,12 +1,24 @@
+using Azure.Storage.Blobs;
+using FileDemo.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// get connection string
+var connectionString = builder.Configuration.GetConnectionString("BlobStorage");
+
+// Register BlobServiceClient 
+builder.Services.AddSingleton(new BlobServiceClient(connectionString));
+
+// register service
+builder.Services.AddScoped<IBlobService, BlobService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -15,5 +27,5 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
-app.Run();
 
+app.Run();
