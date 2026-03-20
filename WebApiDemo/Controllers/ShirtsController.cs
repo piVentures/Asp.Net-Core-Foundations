@@ -9,7 +9,6 @@ namespace WebApiDemo.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class ShirtsController: ControllerBase {
-        
 
         [HttpGet]
         public IActionResult GetShirt()
@@ -17,7 +16,7 @@ namespace WebApiDemo.Controllers
             var shirts = ShirtRepository.GetShirts();
             return Ok(shirts);
         }  
-
+      
     [HttpGet("{id}")]
     [Shirt_validateShirtIdFilter]
     public IActionResult GetShirtById(int id)
